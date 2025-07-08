@@ -16,7 +16,7 @@ members = [ "npy-derive" ]
 
 [dependencies]
 byteorder = "1"
-nom = "3"
+nom = "7"
 
 [dev-dependencies]
 memmap = "0.6"

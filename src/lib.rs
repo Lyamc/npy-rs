@@ -17,8 +17,8 @@ are supported. These are:
  * primitive types: `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `f32`, `f64`. These map to the `numpy`
    types of `int8`, `uint8`, `int16`, etc.
  * `struct`s annotated as `#[derive(Serializable)]`. These map to `numpy`'s
-     [Structured arrays](https://docs.scipy.org/doc/numpy/user/basics.rec.html). They can contain the
-     following field types:
+   [Structured arrays](https://docs.scipy.org/doc/numpy/user/basics.rec.html). They can contain the
+   following field types:
    * primitive types,
    * other [`Serializable`](trait.Serializable.html) structs,
    * arrays of [`Serializable`](trait.Serializable.html) types (including arrays) of length ≤ 16.
@@ -128,11 +128,11 @@ extern crate byteorder;
 extern crate nom;
 
 mod header;
-mod serializable;
 mod npy_data;
 mod out_file;
+mod serializable;
 
-pub use serializable::Serializable;
-pub use header::{DType, Field};
-pub use npy_data::NpyData;
-pub use out_file::{to_file, OutFile};
+pub use crate::header::{DType, Field};
+pub use crate::npy_data::NpyData;
+pub use crate::out_file::{to_file, OutFile};
+pub use crate::serializable::Serializable;
