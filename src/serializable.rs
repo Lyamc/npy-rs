@@ -33,7 +33,7 @@ impl Serializable for i8 {
     fn n_bytes() -> usize { 1 }
     #[inline]
     fn read(buf: &[u8]) -> Self {
-        unsafe { ::std::mem::transmute(buf[0]) } // TODO: a better way
+        u8::cast_signed(buf[0]) // TODO: a better way
     }
     #[inline]
     fn write<W: Write>(&self, writer: &mut W) -> Result<()> {

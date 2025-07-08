@@ -196,10 +196,10 @@ mod parser {
                 map_res!(
                     ws!(alt!(
                         delimited!(tag!("\""),
-                            is_not_s!("\""),
+                            is_not!("\""),
                             tag!("\"")) |
                         delimited!(tag!("\'"),
-                            is_not_s!("\'"),
+                            is_not!("\'"),
                             tag!("\'"))
                         )),
                     ::std::str::from_utf8

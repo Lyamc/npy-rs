@@ -125,7 +125,6 @@ Array { a: 2, b: 3.1, c: 5 }
 */
 
 extern crate byteorder;
-#[macro_use]
 extern crate nom;
 
 mod header;
