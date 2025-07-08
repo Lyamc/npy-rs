@@ -12,9 +12,10 @@ extern crate proc_macro;
 extern crate syn;
 #[macro_use]
 extern crate quote;
+extern crate proc_macro2;
 
 use proc_macro::TokenStream;
-use quote::{ToTokens, Tokens};
+use quote::ToTokens;
 use syn::Data;
 
 /// Macros 1.1-based custom derive function
@@ -33,7 +34,7 @@ pub fn npy_data(input: TokenStream) -> TokenStream {
     expanded.into()
 }
 
-fn impl_npy_data(ast: &syn::DeriveInput) -> quote::Tokens {
+fn impl_npy_data(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
     let fields = match ast.data {
         Data::Struct(ref data) => &data.fields,
@@ -45,7 +46,7 @@ fn impl_npy_data(ast: &syn::DeriveInput) -> quote::Tokens {
     let idents = fields
         .iter()
         .map(|f| {
-            let mut t = Tokens::new();
+            let mut t = proc_macro2::TokenStream::new();
             f.ident
                 .clone()
                 .expect("Tuple structs not supported")
@@ -56,7 +57,7 @@ fn impl_npy_data(ast: &syn::DeriveInput) -> quote::Tokens {
     let types = fields
         .iter()
         .map(|f| {
-            let mut t = Tokens::new();
+            let mut t = proc_macro2::TokenStream::new();
             f.ty.to_tokens(&mut t);
             t
         })
@@ -111,5 +112,5 @@ fn impl_npy_data(ast: &syn::DeriveInput) -> quote::Tokens {
                 Ok(())
             }
         }
-    }
+    }.into()
 }
