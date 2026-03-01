@@ -189,8 +189,13 @@ mod parser {
     pub fn header(input: &[u8]) -> IResult<&[u8], Value> {
         let (input, _) = tag(&[0x93][..])(input)?;
         let (input, _) = tag(&b"NUMPY"[..])(input)?;
-        let (input, _) = tag(&[0x01, 0x00][..])(input)?;
-        let (input, val) = length_value(le_u16, item).parse(input)?;
+        let (input, version) = alt((tag(&[0x01, 0x00][..]), tag(&[0x02, 0x00][..]))).parse(input)?;
+        let (input, val) = if version == &[0x01, 0x00] {
+            length_value(le_u16, item).parse(input)?
+        } else {
+            use nom::number::complete::le_u32;
+            length_value(le_u32, item).parse(input)?
+        };
         Ok((input, val))
     }
 
@@ -439,3 +444,7 @@ mod tests {
             .1
     }
 }
+
+
+
+
