@@ -1,6 +1,6 @@
 [package]
 name = "npy"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Pavel Potocek <pavelpotocek@gmail.com>"]
 license = "MIT"
 description = "NumPy file format (de-)serialization"
@@ -15,9 +15,9 @@ readme = "README.md"
 members = [ "npy-derive" ]
 
 [dependencies]
-byteorder = "1"
-nom = "7"
+byteorder = "1.5"
+nom = "8"
 
 [dev-dependencies]
-memmap = "0.6"
-npy-derive = { path = "npy-derive", version = "0.4" }
+memmap = "0.7"
+npy-derive = { path = "npy-derive", version = "0.5" }

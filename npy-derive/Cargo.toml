@@ -1,6 +1,6 @@
 [package]
 name = "npy-derive"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Pavel Potocek <pavelpotocek@gmail.com>"]
 license = "MIT"
 description = "Macros 1.1 implementation of #[derive(Serializable)] for crate npy"

@@ -176,34 +176,37 @@ mod parser {
     };
     use std::str::{self, FromStr};
 
+    use nom::Parser;
     type Res<'a, O> = IResult<&'a [u8], O>;
 
-    fn ws<'a, F, O>(inner: F) -> impl FnMut(&'a [u8]) -> Res<'a, O>
+    fn ws<'a, F, O>(mut inner: F) -> impl FnMut(&'a [u8]) -> Res<'a, O>
     where
-        F: 'a + FnMut(&'a [u8]) -> Res<'a, O>,
+        F: 'a + Parser<&'a [u8], Output = O, Error = nom::error::Error<&'a [u8]>>,
     {
-        delimited(space0, inner, space0)
+        move |input| delimited(space0, |i| inner.parse(i), space0).parse(input)
     }
 
     pub fn header(input: &[u8]) -> IResult<&[u8], Value> {
-        let (input, _) = tag(&[0x93])(input)?;
-        let (input, _) = tag(b"NUMPY")(input)?;
-        let (input, _) = tag(&[0x01, 0x00])(input)?;
-        let (input, val) = length_value(le_u16, item)(input)?;
+        let (input, _) = tag(&[0x93][..])(input)?;
+        let (input, _) = tag(&b"NUMPY"[..])(input)?;
+        let (input, _) = tag(&[0x01, 0x00][..])(input)?;
+        let (input, val) = length_value(le_u16, item).parse(input)?;
         Ok((input, val))
     }
 
     pub fn integer(input: &[u8]) -> IResult<&[u8], Value> {
         map_res(map_res(ws(digit1), str::from_utf8), |s| {
             i64::from_str(s).map(Value::Integer)
-        })(input)
+        })
+        .parse(input)
     }
 
     pub fn boolean(input: &[u8]) -> IResult<&[u8], Value> {
         ws(alt((
             map(tag("True"), |_| Value::Bool(true)),
             map(tag("False"), |_| Value::Bool(false)),
-        )))(input)
+        )))
+        .parse(input)
     }
 
     pub fn string(input: &[u8]) -> IResult<&[u8], Value> {
@@ -214,11 +217,16 @@ mod parser {
 
         map_res(ws(quoted_string), |s: &[u8]| {
             str::from_utf8(s).map(|s| Value::String(s.to_string()))
-        })(input)
+        })
+        .parse(input)
     }
 
     fn list_inner(input: &'_ [u8]) -> Res<'_, Vec<Value>> {
-        terminated(separated_list0(ws(tag(b",")), item), opt(tag(b",")))(input)
+        terminated(
+            separated_list0(ws(tag(&b","[..])), item),
+            opt(tag(&b","[..])),
+        )
+        .parse(input)
     }
 
     pub fn list(input: &[u8]) -> IResult<&[u8], Value> {
@@ -227,7 +235,7 @@ mod parser {
             delimited(ws(tag("(")), list_inner, ws(tag(")"))),
         ));
 
-        map(array, Value::List)(input)
+        map(array, Value::List).parse(input)
     }
 
     pub fn map_parser(input: &[u8]) -> IResult<&[u8], Value> {
@@ -250,11 +258,12 @@ mod parser {
         map(
             delimited(ws(tag("{")), map_inner, ws(tag("}"))),
             |v: Vec<(String, Value)>| Value::Map(v.into_iter().collect()),
-        )(input)
+        )
+        .parse(input)
     }
 
     pub fn item(input: &[u8]) -> IResult<&[u8], Value> {
-        alt((integer, boolean, string, list, map_parser))(input)
+        alt((integer, boolean, string, list, map_parser)).parse(input)
     }
 }
 
